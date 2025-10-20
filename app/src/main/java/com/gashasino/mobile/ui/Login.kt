@@ -16,12 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import com.gashasino.mobile.viewmodel.FormularioViewModel
+import com.gashasino.mobile.viewmodel.LoginViewModel
 
 
 @Composable
-fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
+fun Login(viewModel: LoginViewModel) {
 
     var abrirModal by remember { mutableStateOf(false) }
 
@@ -30,44 +30,30 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Registrarse", style = MaterialTheme.typography.headlineMedium)
+        Text("Iniciar sesión", style = MaterialTheme.typography.headlineMedium)
         OutlinedTextField(
-            value = viewModel.formulario.nombre,
-            onValueChange = { viewModel.formulario.nombre = it },
-            label = { Text("Ingresa nombre") },
-            isError = !viewModel.verificarNombre(),
-            supportingText = { Text( viewModel.mensajesError.nombre, color = androidx.compose.ui.graphics.Color.Red) }
-        )
-        OutlinedTextField(
-            value = viewModel.formulario.correo,
-            onValueChange = { viewModel.formulario.correo = it },
+            value = viewModel.login.correo,
+            onValueChange = { viewModel.login.correo = it },
             label = { Text("Ingresa correo") },
             isError = !viewModel.verificarCorreo(),
             supportingText = { Text( viewModel.mensajesError.correo, color = androidx.compose.ui.graphics.Color.Red) }
         )
         OutlinedTextField(
-            value = viewModel.formulario.edad,
-            onValueChange = { viewModel.formulario.edad = it },
-            label = { Text("Ingresa edad") },
-            isError = !viewModel.verificarEdad(),
-            supportingText = { Text( viewModel.mensajesError.edad, color = androidx.compose.ui.graphics.Color.Red) }
-        )
-        OutlinedTextField(
-            value = viewModel.formulario.contrasena,
-            onValueChange = { viewModel.formulario.contrasena = it },
+            value = viewModel.login.contrasena,
+            onValueChange = { viewModel.login.contrasena = it },
             label = { Text("Ingresa contraseña") },
-            isError = !viewModel.verificarContrasena(),
+            isError = !viewModel.comprobarContrasena(),
             supportingText = { Text( viewModel.mensajesError.contrasena, color = androidx.compose.ui.graphics.Color.Red) }
         )
         Checkbox(
-            checked = viewModel.formulario.terminos,
-            onCheckedChange = { viewModel.formulario.terminos = it },
+            checked = viewModel.login.recordar,
+            onCheckedChange = { viewModel.login.recordar = it },
         )
-        Text("Acepta los términos")
+        Text("recordar usuario")
 
         Button(
             onClick = {
-                if(viewModel.verificarFormulario()) {
+                if(viewModel.verificarLogin()) {
                     abrirModal = true
                 }
             }
@@ -81,10 +67,7 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                 title = { Text("Confirmación") },
                 text = { Text("Formulario enviado correctamente") },
                 confirmButton = {
-                    Button(onClick = {
-                        abrirModal = false
-                        navController.navigate("login")
-                    }) { Text("OK") }
+                    Button(onClick = { abrirModal = false }) { Text("OK") }
                 }
             )
         }

@@ -17,32 +17,24 @@ class  FormularioRepository {
     }
 
     fun validacionNombre(): Boolean {
-        if(formulario.nombre=="")
-            return false
-        else
-            return true
+        return formulario.nombre.isNotEmpty()
     }
 
     fun validacionCorreo(): Boolean {
-        if (!formulario.correo.matches(Regex("^[\\w.-]+@[\\w.-]+\\.\\w+$")))
-            return false
-        else
-            return true
+        return formulario.correo.matches(Regex("^[\\w.-]+@[\\w.-]+\\.\\w+$"))
     }
 
     fun validacionEdad(): Boolean {
         val edadInt = formulario.edad.toIntOrNull()
-        if (edadInt == null || edadInt < 0 || edadInt > 120)
-            return false
-        else
-            return true
+        return edadInt != null && edadInt >= 0 && edadInt <= 120
     }
 
     fun validacionTerminos(): Boolean {
-        if (!formulario.terminos)
-            return false
-        else
-            return true
+        return formulario.terminos
+    }
+
+    fun validacionContrasena(): Boolean {
+        return formulario.contrasena.isNotEmpty()
     }
 
 

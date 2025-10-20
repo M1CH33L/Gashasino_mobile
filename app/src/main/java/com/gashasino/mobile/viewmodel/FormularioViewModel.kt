@@ -18,7 +18,8 @@ class FormularioViewModel : ViewModel() {
         return verificarNombre() &&
                 verificarCorreo() &&
                 verificarEdad() &&
-                verificarTerminos()
+                verificarTerminos() &&
+                verificarContrasena()
     }
 
     fun verificarNombre(): Boolean {
@@ -63,6 +64,16 @@ class FormularioViewModel : ViewModel() {
             return true
         }
         return repository.validacionTerminos()
+    }
+
+    fun verificarContrasena(): Boolean {
+        if (!repository.validacionContrasena()) {
+            mensajesError.contrasena = "La contraseña no puede estar vacía"
+            return false
+        } else {
+            mensajesError.contrasena = ""
+            return true
+        }
     }
 
 
