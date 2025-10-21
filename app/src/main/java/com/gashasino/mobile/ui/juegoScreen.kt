@@ -60,29 +60,31 @@ fun TarjetaJuego(juego: Juego, modifier: Modifier = Modifier) {
 
     val listaDeJuegos = listOf(
         Juego(
-            "Gacha Game 1",
-            "Una emocionante aventura RPG con héroes coleccionables.",
+            "blackJack",
+            "Maldito crupier, devuelveme la colegiatura de mis hijos",
             R.drawable.blackjack
         ),
         Juego(
-            "Puzzle Gacha",
-            "Resuelve puzzles para desbloquear nuevos personajes.",
+            "Casino wars",
+            "Consigue la carta mas alta y ganale al crupier",
             R.drawable.casinowars
         ),
-        Juego("Rhythm Gacha", "Un juego de ritmo con tus artistas favoritos.", R.drawable.poker),
+        Juego("Poker",
+              "No confies en nadie, ni en tus propias cartas",
+              R.drawable.poker),
         Juego(
-            "Strategy Gacha",
-            "Comanda tus unidades en este juego de estrategia.",
+            "Ruleta",
+            "Gira, gira y gira la ruleta",
             R.drawable.ruleta
         ),
         Juego(
-            "Strategy Gacha",
-            "Comanda tus unidades en este juego de estrategia.",
+            "Sic bo",
+            "Busca la mejor combinacion de dados y robale la plata a los desarolladores",
             R.drawable.sicbo
         ),
         Juego(
-            "Strategy Gacha",
-            "Comanda tus unidades en este juego de estrategia.",
+            "Slots",
+            "por favor diosito, dame un triple 7",
             R.drawable.slots
         ),
         // Agrega más juegos aquí
@@ -102,7 +104,7 @@ fun juegoScreen() {
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(64.dp)
     ) {
         items(listaDeJuegos) { juego ->
             TarjetaJuego(juego = juego)
