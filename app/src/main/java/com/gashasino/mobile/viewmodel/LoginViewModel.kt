@@ -9,7 +9,7 @@ import com.gashasino.mobile.model.LoginModel
 import com.gashasino.mobile.repository.LoginRepository
 
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel() : ViewModel() {
     private val repository = LoginRepository()
 
     var login: LoginModel by mutableStateOf( repository.getLogin() )
