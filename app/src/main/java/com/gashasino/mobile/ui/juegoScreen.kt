@@ -119,7 +119,7 @@ val listaDeJuegos = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 fun juegoScreen(navController: NavController) {
     var monedasDelJugador = 1000 // Valor de ejemplo
-    var selectedIcon by remember { mutableStateOf("Menú") } // Estado para el ícono seleccionado
+    var selectedIcon by remember { mutableStateOf("Inicio") } // Estado para el ícono seleccionado
     var menuAbierto by remember { mutableStateOf(false) } // Estado para el menú desplegable
     // Nota: El texto "Menú" se repite. Para un sistema real, usarías un identificador único.
 
@@ -205,7 +205,7 @@ fun juegoScreen(navController: NavController) {
                 FooterIcon(icon = Icons.Default.ShoppingCart, text = "Tienda", isSelected = selectedIcon == "Tienda", onClick = { selectedIcon = "Tienda" })
                 FooterIcon(icon = Icons.Default.Home, text = "Inicio", isSelected = selectedIcon == "Inicio", onClick = { selectedIcon = "Inicio" })
                 FooterIcon(icon = Icons.Default.Star, text = "Gachapón", isSelected = selectedIcon == "Gachapón", onClick = { selectedIcon = "Gachapón" })
-                FooterIcon(icon = Icons.Default.AccountCircle, text = "Perfil", isSelected = selectedIcon == "Perfil", onClick = { selectedIcon = "Perfil" })
+                FooterIcon(icon = Icons.Default.AccountCircle, text = "Perfil", isSelected = selectedIcon == "Perfil", onClick = { navController.navigate("perfil") })
             }
         }
     ) { innerPadding ->
