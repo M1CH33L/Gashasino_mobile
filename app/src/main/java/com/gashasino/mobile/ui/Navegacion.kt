@@ -15,7 +15,7 @@ fun Navegacion() {
     val formularioViewModel: FormularioViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "formulario") {
+    NavHost(navController = navController, startDestination = "juegoscreen") {
         composable("formulario") {
             Formulario(formularioViewModel, navController)
         }
@@ -23,7 +23,7 @@ fun Navegacion() {
             Login(loginViewModel, navController)
         }
         composable("juegoscreen") {
-            juegoScreen()
+            juegoScreen(navController)
         }
     }
 }
