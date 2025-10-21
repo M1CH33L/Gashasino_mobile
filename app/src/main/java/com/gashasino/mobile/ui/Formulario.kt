@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.gashasino.mobile.viewmodel.FormularioViewModel
@@ -74,7 +75,8 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                         errorContainerColor = Color.Black,
                         cursorColor = Color.White,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        unfocusedTextColor = Color.White,
+                        errorTextColor = Color.Red
                     )
                 )
                 OutlinedTextField(
@@ -90,7 +92,8 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                         errorContainerColor = Color.Black,
                         cursorColor = Color.White,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        unfocusedTextColor = Color.White,
+                        errorTextColor = Color.Red
                     )
                 )
                 OutlinedTextField(
@@ -106,7 +109,8 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                         errorContainerColor = Color.Black,
                         cursorColor = Color.White,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        unfocusedTextColor = Color.White,
+                        errorTextColor = Color.Red
                     )
                 )
                 OutlinedTextField(
@@ -114,6 +118,7 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                     onValueChange = { viewModel.formulario.contrasena = it },
                     label = { Text("Ingresa contraseña") },
                     isError = !viewModel.verificarContrasena(),
+                    visualTransformation = PasswordVisualTransformation(),
                     supportingText = { if(!viewModel.verificarContrasena()) Text( viewModel.mensajesError.contrasena, color = androidx.compose.ui.graphics.Color.Red) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Black,
@@ -122,7 +127,8 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                         errorContainerColor = Color.Black,
                         cursorColor = Color.White,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        unfocusedTextColor = Color.White,
+                        errorTextColor = Color.Red
                     )
                 )
                 Checkbox(

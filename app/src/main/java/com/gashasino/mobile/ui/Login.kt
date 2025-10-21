@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.gashasino.mobile.viewmodel.LoginViewModel
@@ -84,6 +85,7 @@ fun Login(viewModel: LoginViewModel, navController: NavController) {
                     onValueChange = { viewModel.login.contrasena = it },
                     label = { Text("Ingresa contraseña") },
                     isError = !viewModel.comprobarContrasena(),
+                    visualTransformation = PasswordVisualTransformation(),
                     supportingText = {
                         Text(
                             viewModel.mensajesError.contrasena,
