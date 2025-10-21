@@ -68,12 +68,14 @@ fun Login(viewModel: LoginViewModel, navController: NavController) {
                         )
                     },
                     colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Black,
+                        unfocusedContainerColor = Color.Black,
+                        disabledContainerColor = Color.Black,
+                        errorContainerColor = Color.Black,
+                        cursorColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = Color.White,
-                        focusedLabelColor = Color.White,
+                        errorTextColor = Color.Red
                     ),
                 )
 
@@ -89,13 +91,15 @@ fun Login(viewModel: LoginViewModel, navController: NavController) {
                         )
                     },
                     colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Black,
+                        unfocusedContainerColor = Color.Black,
+                        disabledContainerColor = Color.Black,
+                        errorContainerColor = Color.Black,
+                        cursorColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = Color.White,
-                        focusedLabelColor = Color.White,
-                    ),
+                        errorTextColor = Color.Red
+                    )
                 )
                 Checkbox(
                     checked = viewModel.login.recordar,
