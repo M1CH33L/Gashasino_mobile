@@ -18,10 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.gashasino.mobile.viewmodel.FormularioViewModel
 import com.gashasino.mobile.viewmodel.LoginViewModel
+import androidx.navigation.NavController
 
 
 @Composable
-fun Login(viewModel: LoginViewModel) {
+fun Login(viewModel: LoginViewModel, navController: NavController) {
 
     var abrirModal by remember { mutableStateOf(false) }
 
@@ -67,7 +68,9 @@ fun Login(viewModel: LoginViewModel) {
                 title = { Text("Confirmación") },
                 text = { Text("Formulario enviado correctamente") },
                 confirmButton = {
-                    Button(onClick = { abrirModal = false }) { Text("OK") }
+                    Button(onClick = { abrirModal = false
+                        navController.navigate("juegoscreen") }
+                    ) { Text("OK") }
                 }
             )
         }

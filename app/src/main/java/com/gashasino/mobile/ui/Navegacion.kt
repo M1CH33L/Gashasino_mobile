@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gashasino.mobile.viewmodel.FormularioViewModel
 import com.gashasino.mobile.viewmodel.LoginViewModel
 
+
 @Composable
 fun Navegacion() {
     val navController = rememberNavController()
@@ -19,7 +20,10 @@ fun Navegacion() {
             Formulario(formularioViewModel, navController)
         }
         composable("login") {
-            Login(loginViewModel)
+            Login(loginViewModel, navController)
+        }
+        composable("juegoscreen") {
+            juegoScreen()
         }
     }
 }
