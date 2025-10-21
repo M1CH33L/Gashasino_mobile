@@ -3,7 +3,7 @@ package com.gashasino.mobile.repository
 import com.gashasino.mobile.model.FormularioModel
 import com.gashasino.mobile.model.MensajesError
 
-class  FormularioRepository {
+class  FormularioRepository(){
 
     private var formulario = FormularioModel()
     private var errores = MensajesError()
