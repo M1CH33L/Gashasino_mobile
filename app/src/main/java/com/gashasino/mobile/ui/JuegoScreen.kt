@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -117,7 +115,7 @@ val listaDeJuegos = listOf(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun juegoScreen(navController: NavController) {
+fun JuegoScreen(navController: NavController) {
     var monedasDelJugador = 1000 // Valor de ejemplo
     var selectedIcon by remember { mutableStateOf("Inicio") } // Estado para el ícono seleccionado
     var menuAbierto by remember { mutableStateOf(false) } // Estado para el menú desplegable
@@ -217,7 +215,12 @@ fun juegoScreen(navController: NavController) {
             modifier = Modifier.padding(innerPadding) // Aplica el padding del Scaffold
         ) {
             items(items = listaDeJuegos, key = { it.nombre }) { juego ->
-                TarjetaJuego(juego = juego)
+                val modifier = if (juego.nombre == "Ruleta") {
+                    Modifier.clickable { navController.navigate("ruletaScreen") }
+                } else {
+                    Modifier
+                }
+                TarjetaJuego(juego = juego, modifier = modifier)
             }
         }
     }
@@ -257,5 +260,3 @@ fun FooterIcon(
         )
     }
 }
-
-

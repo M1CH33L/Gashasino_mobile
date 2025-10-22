@@ -250,3 +250,4 @@ fun PerfilScreen(navController: NavController) {
         }
     }
 }
+// Force re-index

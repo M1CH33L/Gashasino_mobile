@@ -4,7 +4,7 @@ import com.gashasino.mobile.model.LoginMensajesError
 import com.gashasino.mobile.model.LoginModel
 import com.gashasino.mobile.model.MensajesError
 
-class LoginRepository() {
+class LoginRepository {
     private var login = LoginModel()
     private var error = LoginMensajesError()
 

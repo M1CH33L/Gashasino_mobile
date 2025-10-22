@@ -170,3 +170,4 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
         }
     }
 }
+// Force re-index
