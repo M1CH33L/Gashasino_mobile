@@ -6,7 +6,7 @@ Gashasino Mobile es una aplicación de casino virtual desarrollada en Android co
 
 El proyecto sigue una arquitectura estándar de Android, organizada de la siguiente manera para facilitar la escalabilidad y el mantenimiento.
 
-## Herramientas e Imports ClaveLa aplicación está construida utilizando tecnologías modernas de Android.
+## Herramientas e Imports Clave La aplicación está construida utilizando tecnologías modernas de Android.
 
 *   **Lenguaje:** [Kotlin](https://kotlinlang.org/)
 *   **UI Toolkit:** [Jetpack Compose](https://developer.android.com/jetpack/compose) para una interfaz de usuario declarativa y moderna.
