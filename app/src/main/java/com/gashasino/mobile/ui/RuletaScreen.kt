@@ -1,6 +1,7 @@
 package com.gashasino.mobile.ui
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -34,7 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -71,7 +72,6 @@ fun RuletaScreen(navController: NavController) {
     var isSpinning by remember { mutableStateOf(false) }
     val rotationAngle = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
-    var numeroGanador by remember { mutableStateOf<String?>(null) }
     var tipoApuesta by remember { mutableStateOf("numero") } // "numero", "rojo", "negro"
 
 
@@ -110,14 +110,7 @@ fun RuletaScreen(navController: NavController) {
                 RoulettePointer()
             }
 
-            if (numeroGanador != null) {
-                Text(
-                    text = "Resultado: $numeroGanador",
-                    color = Color.White,
-                    fontSize = 32.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Elige tu tipo de apuesta:",
@@ -212,16 +205,29 @@ fun RuletaScreen(navController: NavController) {
                                 mensaje = ""
                                 balance -= apuestaInt
 
-                                val winningIndex = Random.nextInt(0, rouletteNumbers.size)
-                                val winner = rouletteNumbers[winningIndex]
-                                val anglePerSlot = 360f / rouletteNumbers.size
-                                val targetAngle = (360 * (5..8).random()) - (winningIndex * anglePerSlot) - (anglePerSlot / 2f) + rotationAngle.value
+                                // La ruleta gira a un destino aleatorio
+                                val randomSpins = (5..10).random()
+                                val randomExtraAngle = Random.nextFloat() * 360
+                                val targetAngle = rotationAngle.value + (randomSpins * 360) + randomExtraAngle
 
                                 rotationAngle.animateTo(
                                     targetValue = targetAngle,
-                                    animationSpec = tween(durationMillis = 4000)
+                                    animationSpec = tween(durationMillis = 5000, easing = EaseOutCubic)
                                 )
-                                numeroGanador = winner
+
+                                // Calcular el ganador basándose en el ángulo final
+                                val finalAngle = rotationAngle.value
+                                val anglePerSlot = 360f / rouletteNumbers.size
+
+                                // El ángulo que termina en la parte superior es el inverso de la rotación final.
+                                // Lo normalizamos a un valor positivo entre 0 y 360.
+                                val angleAtTop = (-finalAngle % 360f + 360f) % 360f
+
+                                // Calculamos el índice ganador. Sumamos la mitad del ángulo de un sector
+                                // para ajustar el hecho de que el número está en el centro del sector.
+                                val winningIndex = (floor((angleAtTop + (anglePerSlot / 2)) / anglePerSlot).toInt()) % rouletteNumbers.size
+                                val winner = rouletteNumbers[winningIndex]
+
 
                                 var hasWon = false
                                 var ganancia = 0
@@ -249,9 +255,9 @@ fun RuletaScreen(navController: NavController) {
 
                                 if (hasWon) {
                                     balance += ganancia
-                                    mensaje = "¡Felicidades! Has ganado $ganancia."
+                                    mensaje = "¡Felicidades! Has ganado $ganancia creditos."
                                 } else {
-                                    mensaje = "Lo sentimos, has perdido. El número era $winner."
+                                    mensaje = "Lo sentimos, has perdido."
                                 }
                                 isSpinning = false
                             }
@@ -336,30 +342,55 @@ fun RouletteWheel(rotationAngle: Float) {
                 drawLine(
                     color = Color.DarkGray,
                     start = center,
-                    end = Offset(lineEndX, lineEndY),
+                    end = androidx.compose.ui.geometry.Offset(lineEndX, lineEndY),
                     strokeWidth = 2.dp.toPx()
                 )
             }
 
-            // Draw numbers (rotated)
-            rouletteNumbers.forEachIndexed { index, number ->
-                val textAngle = (anglePerSlot * index) - 90f
-                val textRadius = (outerRadius + innerRadius) / 2
-                val x = (center.x + textRadius * cos(Math.toRadians(textAngle.toDouble()))).toFloat()
-                val y = (center.y + textRadius * sin(Math.toRadians(textAngle.toDouble()))).toFloat()
+            // Draw inner border
+            drawCircle(
+                color = Color.DarkGray,
+                radius = innerRadius,
+                style = Stroke(width = 3.dp.toPx())
+            )
 
-                drawIntoCanvas {
-                    it.nativeCanvas.save()
-                    it.nativeCanvas.rotate(textAngle + 90, x, y)
-                    it.nativeCanvas.drawText(number, x, y, textPaint)
-                    it.nativeCanvas.restore()
+            // Draw text numbers
+            drawIntoCanvas { canvas ->
+                rouletteNumbers.forEachIndexed { index, number ->
+                    val angle = (anglePerSlot * index) - 90f
+                    val textRadius = (outerRadius + innerRadius) / 2
+                    val textX = center.x + textRadius * cos(Math.toRadians(angle.toDouble())).toFloat()
+                    val textY = center.y + textRadius * sin(Math.toRadians(angle.toDouble())).toFloat()
+
+                    canvas.nativeCanvas.save()
+                    canvas.nativeCanvas.rotate(angle + 90, textX, textY)
+                    canvas.nativeCanvas.drawText(
+                        number,
+                        textX,
+                        textY + (textPaint.descent() - textPaint.ascent()) / 2 - textPaint.descent(),
+                        textPaint
+                    )
+                    canvas.nativeCanvas.restore()
                 }
             }
         }
 
-        // Draw borders and center hub
-        drawCircle(color = Color.Gray, style = Stroke(width = 6.dp.toPx()))
-        drawCircle(radius = centerCircleRadius, color = Color(0xFFC0C0C0)) // Silver-like center
-        drawCircle(radius = centerCircleRadius * 0.7f, color = Color.DarkGray)
+        // Draw outer border
+        drawCircle(
+            color = Color(0xFFFDD835), // Gold
+            radius = outerRadius,
+            style = Stroke(width = 6.dp.toPx())
+        )
+
+        // Draw center circle
+        drawCircle(
+            color = Color(0xFF004D00),
+            radius = centerCircleRadius
+        )
+        drawCircle(
+            color = Color.DarkGray,
+            radius = centerCircleRadius,
+            style = Stroke(width = 4.dp.toPx())
+        )
     }
 }

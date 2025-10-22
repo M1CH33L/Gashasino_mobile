@@ -1,6 +1,6 @@
 # Gashasino Mobile
 
-Gashasino Mobile es una aplicación de casino virtual desarrollada en Android con Kotlin y Jetpack Compose. La aplicación permite a los usuarios registrarse, iniciar sesión, ver una lista de juegos y gestionar su perfil de usuario, incluyendo la posibilidad de cambiar su foto de perfil.
+Gashasino Mobile es una aplicación de casino virtual desarrollada en Android con Kotlin y Jetpack Compose. La aplicación permite a los usuarios registrarse, iniciar sesión, ver una lista de juegos, jugar a ellos, y gestionar su perfil de usuario, incluyendo la posibilidad de cambiar su foto de perfil.
 
 ## Estructura de Carpetas
 
@@ -21,9 +21,11 @@ A continuación, se detalla la función de cada archivo Kotlin principal en el p
 
 *   **`MainActivity.kt`**: Es el punto de entrada de la aplicación. Su única responsabilidad es configurar el tema de la aplicación (`Gashasino_mobileTheme`) y albergar el composable `Navegacion`, que controla toda la lógica de navegación.
 
-*   **`ui/Navegacion.kt`**: Contiene el `NavHost` de Jetpack Compose. Aquí se definen todas las rutas (como `"juegoScreen"`, `"Login"`, `"Perfil"`) y se asocia cada ruta con su composable correspondiente, gestionando el flujo de la aplicación.
+*   **`ui/Navegacion.kt`**: Contiene el `NavHost` de Jetpack Compose. Aquí se definen todas las rutas (como `"juegoScreen"`, `"Login"`, `"Perfil"`, `"ruletaScreen"`) y se asocia cada ruta con su composable correspondiente, gestionando el flujo de la aplicación.
 
-*   **`ui/juegoScreen.kt`**: Es la pantalla principal de la aplicación, que se muestra después de iniciar sesión. Presenta una lista de juegos disponibles en una `LazyVerticalGrid` y un footer con iconos para navegar a otras secciones como "Tienda", "Inicio" y "Perfil".
+*   **`ui/juegoScreen.kt`**: Es la pantalla principal de la aplicación, que se muestra después de iniciar sesión. Presenta una lista de juegos disponibles (como la Ruleta) en una `LazyVerticalGrid`. Permite la navegación a las pantallas de juego específicas al pulsar sobre ellas. También incluye un footer con iconos para navegar a otras secciones como "Tienda", "Inicio" y "Perfil".
+
+*   **`ui/RuletaScreen.kt`**: Implementa el juego de la ruleta. Esta pantalla es altamente interactiva y visualmente atractiva. Permite a los usuarios realizar apuestas a un número específico o a un color (rojo/negro). La lógica del juego ha sido diseñada para que el resultado del giro sea determinado por la posición final visual de la ruleta, ofreciendo una experiencia más realista y emocionante. Incluye una animación de giro suave y un indicador visual para señalar el número ganador.
 
 *   **`ui/Formulario.kt`**: Contiene la pantalla de registro de nuevos usuarios. Incluye campos de texto para el nombre, correo, edad y contraseña. Utiliza `PasswordVisualTransformation` para ocultar la contraseña y realiza validaciones básicas de los campos.
 
