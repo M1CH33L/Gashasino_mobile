@@ -10,7 +10,7 @@ import com.gashasino.mobile.viewmodel.LoginViewModel
 @Composable
 fun Navegacion() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "ruletaScreen") {
+    NavHost(navController = navController, startDestination = "Formulario") {
         composable("juegoScreen") { JuegoScreen(navController) }
         composable("Formulario") { Formulario( viewModel = FormularioViewModel(), navController) }
         composable("Login") { Login(viewModel = LoginViewModel(), navController) }
