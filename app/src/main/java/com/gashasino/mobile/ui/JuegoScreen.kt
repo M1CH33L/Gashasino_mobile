@@ -215,11 +215,13 @@ fun JuegoScreen(navController: NavController) {
             modifier = Modifier.padding(innerPadding) // Aplica el padding del Scaffold
         ) {
             items(items = listaDeJuegos, key = { it.nombre }) { juego ->
-                val modifier = if (juego.nombre == "Ruleta") {
-                    Modifier.clickable { navController.navigate("ruletaScreen") }
-                } else {
-                    Modifier
+                val modifier = when (juego.nombre) {
+                    "Ruleta" -> Modifier.clickable { navController.navigate("RuletaScreen") }
+                    "Sic bo" -> Modifier.clickable { navController.navigate("ruletaScreen") }
+                    "Slots" -> Modifier.clickable { navController.navigate("SlotsScreen") }
+                    else -> Modifier
                 }
+
                 TarjetaJuego(juego = juego, modifier = modifier)
             }
         }

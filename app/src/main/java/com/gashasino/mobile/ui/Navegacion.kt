@@ -16,5 +16,7 @@ fun Navegacion() {
         composable("Login") { Login(viewModel = LoginViewModel(), navController) }
         composable("perfil") { PerfilScreen(navController) }
         composable("ruletaScreen") { RuletaScreen(navController) }
+        composable("SlotsScreen") { SlotsScreen(navController = navController) }
+
     }
 }
