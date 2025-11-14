@@ -6,32 +6,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.gashasino.mobile.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.floor
@@ -63,225 +45,7 @@ private fun getRouletteColor(number: String): Color {
     }
 }
 
-@Composable
-fun RuletaScreen(navController: NavController) {
-    var balance by remember { mutableIntStateOf(1000) }
-    var apuesta by remember { mutableStateOf("") }
-    var numeroApostado by remember { mutableStateOf("") }
-    var mensaje by remember { mutableStateOf("") }
-    var isSpinning by remember { mutableStateOf(false) }
-    val rotationAngle = remember { Animatable(0f) }
-    val scope = rememberCoroutineScope()
-    var tipoApuesta by remember { mutableStateOf("numero") } // "numero", "rojo", "negro"
 
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF003300)), // Dark Green background
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "Volver atrás",
-            tint = Color.White,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-                .clickable { navController.navigate("juegoScreen") }
-        )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "Balance: $balance",
-                color = Color.White,
-                fontSize = 24.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box(
-                contentAlignment = Alignment.TopCenter,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                RouletteWheel(rotationAngle = rotationAngle.value)
-                RoulettePointer()
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Elige tu tipo de apuesta:",
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-            ) {
-                Button(
-                    onClick = { tipoApuesta = "numero" },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (tipoApuesta == "numero") Color.Green else Color.DarkGray),
-                    enabled = !isSpinning
-                ) {
-                    Text("Número", color = if (tipoApuesta == "numero") Color.Black else Color.White)
-                }
-                Button(
-                    onClick = { tipoApuesta = "rojo" },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (tipoApuesta == "rojo") Color.Red else Color.DarkGray),
-                    enabled = !isSpinning
-                ) {
-                    Text("Rojo")
-                }
-                Button(
-                    onClick = { tipoApuesta = "negro" },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (tipoApuesta == "negro") Color.Black else Color.DarkGray),
-                    enabled = !isSpinning
-                ) {
-                    Text("Negro", color = Color.White)
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (tipoApuesta == "numero") {
-                OutlinedTextField(
-                    value = numeroApostado,
-                    onValueChange = { numeroApostado = it },
-                    label = { Text("Tu número (0-36 o 00)", color = Color.Gray) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color.Green,
-                        unfocusedBorderColor = Color.White,
-                        cursorColor = Color.Green
-                    ),
-                    singleLine = true,
-                    enabled = !isSpinning
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            OutlinedTextField(
-                value = apuesta,
-                onValueChange = { apuesta = it },
-                label = { Text("Tu apuesta", color = Color.Gray) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Color.Green,
-                    unfocusedBorderColor = Color.White,
-                    cursorColor = Color.Green
-                ),
-                singleLine = true,
-                enabled = !isSpinning
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    val apuestaInt = apuesta.toIntOrNull()
-
-                    if (apuestaInt == null || apuestaInt <= 0) {
-                        mensaje = "Por favor, introduce una apuesta válida."
-                    } else if (apuestaInt > balance) {
-                        mensaje = "No tienes suficiente saldo para esta apuesta."
-                    } else {
-                        var isValidBet = true
-                        if (tipoApuesta == "numero") {
-                            val isValidNumber = numeroApostado == "00" || (numeroApostado.toIntOrNull() in 0..36)
-                            if (!isValidNumber) {
-                                mensaje = "Por favor, elige un número entre 0 y 36 (o 00)."
-                                isValidBet = false
-                            }
-                        }
-
-                        if (isValidBet) {
-                            scope.launch {
-                                isSpinning = true
-                                mensaje = ""
-                                balance -= apuestaInt
-
-                                // La ruleta gira a un destino aleatorio
-                                val randomSpins = (5..10).random()
-                                val randomExtraAngle = Random.nextFloat() * 360
-                                val targetAngle = rotationAngle.value + (randomSpins * 360) + randomExtraAngle
-
-                                rotationAngle.animateTo(
-                                    targetValue = targetAngle,
-                                    animationSpec = tween(durationMillis = 5000, easing = EaseOutCubic)
-                                )
-
-                                // Calcular el ganador basándose en el ángulo final
-                                val finalAngle = rotationAngle.value
-                                val anglePerSlot = 360f / rouletteNumbers.size
-
-                                // El ángulo que termina en la parte superior es el inverso de la rotación final.
-                                // Lo normalizamos a un valor positivo entre 0 y 360.
-                                val angleAtTop = (-finalAngle % 360f + 360f) % 360f
-
-                                // Calculamos el índice ganador. Sumamos la mitad del ángulo de un sector
-                                // para ajustar el hecho de que el número está en el centro del sector.
-                                val winningIndex = (floor((angleAtTop + (anglePerSlot / 2)) / anglePerSlot).toInt()) % rouletteNumbers.size
-                                val winner = rouletteNumbers[winningIndex]
-
-
-                                var hasWon = false
-                                var ganancia = 0
-
-                                when (tipoApuesta) {
-                                    "numero" -> {
-                                        if (winner == numeroApostado) {
-                                            hasWon = true
-                                            ganancia = apuestaInt * 36
-                                        }
-                                    }
-                                    "rojo" -> {
-                                        if (getRouletteColor(winner) == Color.Red) {
-                                            hasWon = true
-                                            ganancia = apuestaInt * 2
-                                        }
-                                    }
-                                    "negro" -> {
-                                        if (getRouletteColor(winner) == Color.Black) {
-                                            hasWon = true
-                                            ganancia = apuestaInt * 2
-                                        }
-                                    }
-                                }
-
-                                if (hasWon) {
-                                    balance += ganancia
-                                    mensaje = "¡Felicidades! Has ganado $ganancia creditos."
-                                } else {
-                                    mensaje = "Lo sentimos, has perdido."
-                                }
-                                isSpinning = false
-                            }
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-                enabled = !isSpinning
-            ) {
-                Text(
-                    text = "Girar",
-                    color = Color.Black,
-                    fontSize = 24.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = mensaje,
-                color = if (mensaje.contains("Felicidades")) Color.Green else Color.Red,
-                fontSize = 18.sp
-            )
-        }
-    }
-}
 
 @Composable
 fun RoulettePointer() {
@@ -299,7 +63,6 @@ fun RoulettePointer() {
         )
     }
 }
-
 
 @Composable
 fun RouletteWheel(rotationAngle: Float) {
@@ -325,6 +88,8 @@ fun RouletteWheel(rotationAngle: Float) {
         rotate(degrees = rotationAngle, pivot = center) {
             // Draw colored slots
             rouletteNumbers.forEachIndexed { index, number ->
+                // --- CAMBIO 1: Ajuste del ángulo inicial para los arcos de color ---
+                // Le restamos 90 grados para que el slot 0 comience arriba.
                 val startAngle = (anglePerSlot * index) - 90f - (anglePerSlot / 2f)
                 drawArc(
                     color = getRouletteColor(number),
@@ -336,6 +101,7 @@ fun RouletteWheel(rotationAngle: Float) {
 
             // Draw divider lines
             rouletteNumbers.forEachIndexed { index, _ ->
+                // --- CAMBIO 2: Ajuste del ángulo para las líneas divisorias ---
                 val angle = (anglePerSlot * index) - 90f - (anglePerSlot / 2f)
                 val lineEndX = center.x + outerRadius * cos(Math.toRadians(angle.toDouble())).toFloat()
                 val lineEndY = center.y + outerRadius * sin(Math.toRadians(angle.toDouble())).toFloat()
@@ -350,47 +116,268 @@ fun RouletteWheel(rotationAngle: Float) {
             // Draw inner border
             drawCircle(
                 color = Color.DarkGray,
-                radius = innerRadius,
-                style = Stroke(width = 3.dp.toPx())
+                style = Stroke(width = 2.dp.toPx()),
+                radius = innerRadius
             )
 
-            // Draw text numbers
-            drawIntoCanvas { canvas ->
-                rouletteNumbers.forEachIndexed { index, number ->
-                    val angle = (anglePerSlot * index) - 90f
-                    val textRadius = (outerRadius + innerRadius) / 2
-                    val textX = center.x + textRadius * cos(Math.toRadians(angle.toDouble())).toFloat()
-                    val textY = center.y + textRadius * sin(Math.toRadians(angle.toDouble())).toFloat()
+            // Draw center circle
+            drawCircle(color = Color(0xFF333333), radius = centerCircleRadius)
+            drawCircle(
+                color = Color.DarkGray,
+                style = Stroke(width = 2.dp.toPx()),
+                radius = centerCircleRadius
+            )
 
+            // Draw numbers
+            rouletteNumbers.forEachIndexed { index, number ->
+                // --- CAMBIO 3: Ajuste del ángulo para la posición del texto ---
+                // También le restamos 90 grados al ángulo base.
+                val angle = (anglePerSlot * index) - 90f
+                val textRadius = (outerRadius + innerRadius) / 2
+                val textX = center.x + textRadius * cos(Math.toRadians(angle.toDouble())).toFloat()
+                val textY = center.y + textRadius * sin(Math.toRadians(angle.toDouble())).toFloat()
+
+                drawIntoCanvas { canvas ->
                     canvas.nativeCanvas.save()
+                    // La rotación del texto individual se mantiene para que quede derecho
                     canvas.nativeCanvas.rotate(angle + 90, textX, textY)
-                    canvas.nativeCanvas.drawText(
-                        number,
-                        textX,
-                        textY + (textPaint.descent() - textPaint.ascent()) / 2 - textPaint.descent(),
-                        textPaint
-                    )
+                    canvas.nativeCanvas.drawText(number, textX, textY, textPaint)
                     canvas.nativeCanvas.restore()
                 }
             }
         }
+    }
+}
 
-        // Draw outer border
-        drawCircle(
-            color = Color(0xFFFDD835), // Gold
-            radius = outerRadius,
-            style = Stroke(width = 6.dp.toPx())
-        )
 
-        // Draw center circle
-        drawCircle(
-            color = Color(0xFF004D00),
-            radius = centerCircleRadius
-        )
-        drawCircle(
-            color = Color.DarkGray,
-            radius = centerCircleRadius,
-            style = Stroke(width = 4.dp.toPx())
-        )
+
+@Composable
+fun RuletaScreen(navController: NavController, userViewModel: UserViewModel) {
+    val balance by userViewModel.userMonedas.collectAsState()
+    var apuesta by remember { mutableStateOf("") }
+    var numeroApostado by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
+    var isSpinning by remember { mutableStateOf(false) }
+    val rotationAngle = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    var tipoApuesta by remember { mutableStateOf("numero") } // "numero", "rojo", "negro"
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF003300)), // Dark Green background
+        contentAlignment = Alignment.Center
+    ) {
+
+        if (balance == null) {
+            CircularProgressIndicator(color = Color.White)
+        } else {
+            val currentBalance = balance!!
+
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Volver atrás",
+                tint = Color.White,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(16.dp)
+                    .clickable { navController.navigate("juegoScreen") }
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "Balance: $currentBalance",
+                    color = Color.White,
+                    fontSize = 24.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    RouletteWheel(rotationAngle = rotationAngle.value)
+                    RoulettePointer()
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Elige tu tipo de apuesta:",
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                ) {
+                    Button(
+                        onClick = { tipoApuesta = "numero" },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (tipoApuesta == "numero") Color.Green else Color.DarkGray),
+                        enabled = !isSpinning
+                    ) {
+                        Text(
+                            "Número",
+                            color = if (tipoApuesta == "numero") Color.Black else Color.White
+                        )
+                    }
+                    Button(
+                        onClick = { tipoApuesta = "rojo" },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (tipoApuesta == "rojo") Color.Red else Color.DarkGray),
+                        enabled = !isSpinning
+                    ) {
+                        Text("Rojo")
+                    }
+                    Button(
+                        onClick = { tipoApuesta = "negro" },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (tipoApuesta == "negro") Color.Black else Color.DarkGray),
+                        enabled = !isSpinning
+                    ) {
+                        Text("Negro", color = Color.White)
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (tipoApuesta == "numero") {
+                    OutlinedTextField(
+                        value = numeroApostado,
+                        onValueChange = { numeroApostado = it },
+                        label = { Text("Tu número (0-36 o 00)", color = Color.Gray) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = Color.Green,
+                            unfocusedBorderColor = Color.White,
+                            cursorColor = Color.Green
+                        ),
+                        singleLine = true,
+                        enabled = !isSpinning
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                OutlinedTextField(
+                    value = apuesta,
+                    onValueChange = { apuesta = it },
+                    label = { Text("Tu apuesta", color = Color.Gray) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color.Green,
+                        unfocusedBorderColor = Color.White,
+                        cursorColor = Color.Green
+                    ),
+                    singleLine = true,
+                    enabled = !isSpinning
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        val apuestaInt = apuesta.toIntOrNull()
+
+                        if (apuestaInt == null || apuestaInt <= 0) {
+                            mensaje = "Por favor, introduce una apuesta válida."
+                        } else if (apuestaInt > currentBalance) {
+                            mensaje = "No tienes suficiente saldo para esta apuesta."
+                        } else {
+                            var isValidBet = true
+                            if (tipoApuesta == "numero") {
+                                val isValidNumber =
+                                    numeroApostado == "00" || (numeroApostado.toIntOrNull() in 0..36)
+                                if (!isValidNumber) {
+                                    mensaje = "Por favor, elige un número entre 0 y 36 (o 00)."
+                                    isValidBet = false
+                                }
+                            }
+
+                            if (isValidBet) {
+                                scope.launch {
+                                    isSpinning = true
+                                    mensaje = ""
+                                    userViewModel.addMonedas(-apuestaInt)
+
+                                    // La ruleta gira a un destino aleatorio
+                                    val randomSpins = (5..10).random()
+                                    val randomExtraAngle = Random.nextFloat() * 360
+                                    val targetAngle =
+                                        rotationAngle.value + (randomSpins * 360) + randomExtraAngle
+
+                                    rotationAngle.animateTo(
+                                        targetValue = targetAngle,
+                                        animationSpec = tween(
+                                            durationMillis = 5000,
+                                            easing = EaseOutCubic
+                                        )
+                                    )
+
+                                    // Calcular el ganador basándose en el ángulo final
+                                    val finalAngle = rotationAngle.value
+                                    val anglePerSlot = 360f / rouletteNumbers.size
+
+                                    val angleAtTop = (-finalAngle % 360f + 360f) % 360f
+
+                                    val winningIndex =
+                                        (floor((angleAtTop + (anglePerSlot / 2)) / anglePerSlot).toInt()) % rouletteNumbers.size
+                                    val winner = rouletteNumbers[winningIndex]
+
+                                    var hasWon = false
+                                    var ganancia = 0
+
+                                    when (tipoApuesta) {
+                                        "numero" -> {
+                                            if (winner == numeroApostado) {
+                                                hasWon = true
+                                                ganancia = apuestaInt * 36
+                                            }
+                                        }
+                                        "rojo" -> {
+                                            if (getRouletteColor(winner) == Color.Red) {
+                                                hasWon = true
+                                                ganancia = apuestaInt * 2
+                                            }
+                                        }
+                                        "negro" -> {
+                                            if (getRouletteColor(winner) == Color.Black) {
+                                                hasWon = true
+                                                ganancia = apuestaInt * 2
+                                            }
+                                        }
+                                    }
+
+                                    if (hasWon) {
+                                        userViewModel.addMonedas(ganancia)
+                                        mensaje = "¡Felicidades! Has ganado $ganancia creditos."
+                                    } else {
+                                        mensaje = "Lo sentimos, el número ganador fue $winner. Has perdido."
+                                    }
+                                    isSpinning = false
+                                }
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                    enabled = !isSpinning && (apuesta.toIntOrNull() ?: 0) > 0 && (apuesta.toIntOrNull() ?: 0) <= currentBalance
+                ) {
+                    Text(
+                        text = "Girar",
+                        color = Color.Black,
+                        fontSize = 24.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = mensaje,
+                    color = if (mensaje.contains("Felicidades")) Color.Green else Color.Red,
+                    fontSize = 18.sp
+                )
+            }
+        }
     }
 }

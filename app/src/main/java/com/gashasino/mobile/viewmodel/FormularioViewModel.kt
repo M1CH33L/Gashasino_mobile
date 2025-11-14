@@ -46,7 +46,7 @@ class FormularioViewModel : ViewModel() {
 
     fun verificarEdad(): Boolean {
         if(!repository.validacionEdad()) {
-            mensajesError.edad = "La edad debe ser un número entre 0 y 120"
+            mensajesError.edad = "La edad debe ser un número entre 18 y 120"
             return false
         } else {
             mensajesError.edad = ""

@@ -42,8 +42,9 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.runtime.collectAsState
 import com.gashasino.mobile.R // Asegúrate de importar tu R
-
+import com.gashasino.mobile.viewmodel.UserViewModel
 
 
 @Composable
@@ -115,8 +116,8 @@ val listaDeJuegos = listOf(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun JuegoScreen(navController: NavController) {
-    var monedasDelJugador = 1000 // Valor de ejemplo
+fun JuegoScreen(navController: NavController, userViewModel: UserViewModel) {
+    val monedasDelJugador by userViewModel.userMonedas.collectAsState()
     var selectedIcon by remember { mutableStateOf("Inicio") } // Estado para el ícono seleccionado
     var menuAbierto by remember { mutableStateOf(false) } // Estado para el menú desplegable
     // Nota: El texto "Menú" se repite. Para un sistema real, usarías un identificador único.
@@ -146,7 +147,7 @@ fun JuegoScreen(navController: NavController) {
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        text = "$monedasDelJugador",
+                        text = "${monedasDelJugador ?: "..."}",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = Color.White

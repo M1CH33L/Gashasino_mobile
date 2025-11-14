@@ -26,7 +26,7 @@ class  FormularioRepository(){
 
     fun validacionEdad(): Boolean {
         val edadInt = formulario.edad.toIntOrNull()
-        return edadInt != null && edadInt >= 0 && edadInt <= 120
+        return edadInt != null && edadInt >= 18 && edadInt <= 120
     }
 
     fun validacionTerminos(): Boolean {
