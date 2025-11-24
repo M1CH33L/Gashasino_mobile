@@ -217,7 +217,7 @@ fun JuegoScreen(navController: NavController, userViewModel: UserViewModel) {
         ) {
             items(items = listaDeJuegos, key = { it.nombre }) { juego ->
                 val modifier = when (juego.nombre) {
-                    "Ruleta" -> Modifier.clickable { navController.navigate("RuletaScreen") }
+                    "Ruleta" -> Modifier.clickable { navController.navigate("ruletaScreen") }
                     "Sic bo" -> Modifier.clickable { navController.navigate("ruletaScreen") }
                     "Slots" -> Modifier.clickable { navController.navigate("SlotsScreen") }
                     else -> Modifier

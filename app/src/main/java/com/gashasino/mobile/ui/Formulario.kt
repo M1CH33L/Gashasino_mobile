@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -13,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -36,7 +38,9 @@ import com.gashasino.mobile.viewmodel.FormularioViewModel
 @Composable
 fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
 
-    var abrirModal by remember { mutableStateOf(false) }
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var mensajeDialogo by remember { mutableStateOf("") }
+    var esExito by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -56,7 +60,7 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 56.dp), // Adjust padding to avoid overlap with the back arrow
+                    .padding(top = 56.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -142,26 +146,41 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
                 )
                 Text("Acepta los términos", color = Color.White)
 
-                Button(
-                    onClick = {
-                        if(viewModel.verificarFormulario()) {
-                            abrirModal = true
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
-                ) {
-                    Text("Enviar", color = Color.Black)
+                if (viewModel.cargando) {
+                    CircularProgressIndicator(color = Color.Green)
+                } else {
+                    Button(
+                        onClick = {
+                            viewModel.registrarUsuario(
+                                onSuccess = {
+                                    mensajeDialogo = "Usuario registrado exitosamente"
+                                    esExito = true
+                                    mostrarDialogo = true
+                                },
+                                onError = { mensaje ->
+                                    mensajeDialogo = mensaje
+                                    esExito = false
+                                    mostrarDialogo = true
+                                }
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                    ) {
+                        Text("Enviar", color = Color.Black)
+                    }
                 }
 
-                if (abrirModal) {
+                if (mostrarDialogo) {
                     AlertDialog(
-                        onDismissRequest = { },
-                        title = { Text("Confirmación") },
-                        text = { Text("Formulario enviado correctamente") },
+                        onDismissRequest = { mostrarDialogo = false },
+                        title = { Text(if (esExito) "Éxito" else "Error") },
+                        text = { Text(mensajeDialogo) },
                         confirmButton = {
                             Button(onClick = {
-                                abrirModal = false
-                                navController.navigate("login")
+                                mostrarDialogo = false
+                                if (esExito) {
+                                    navController.navigate("login")
+                                }
                             }) { Text("OK") }
                         }
                     )
@@ -170,4 +189,3 @@ fun Formulario(viewModel: FormularioViewModel, navController: NavController) {
         }
     }
 }
-// Force re-index

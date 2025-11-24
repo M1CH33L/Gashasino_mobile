@@ -37,6 +37,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,15 +58,24 @@ import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.gashasino.mobile.R
+import com.gashasino.mobile.viewmodel.UserViewModel
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PerfilScreen(navController: NavController) {
+fun PerfilScreen(navController: NavController, userViewModel: UserViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Refrescar datos del usuario al entrar
+    LaunchedEffect(key1 = true) {
+        userViewModel.refreshUserData()
+    }
+
+    // Observamos el saldo, que también se actualiza al refrescar usuario
+    val monedas by userViewModel.userMonedas.collectAsState()
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -209,13 +220,13 @@ fun PerfilScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Nombre de Usuario",
+                text = userViewModel.currentUserNombre.ifEmpty { "Usuario" },
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "usuario@email.com",
+                text = userViewModel.currentUserCorreo.ifEmpty { "usuario@email.com" },
                 fontSize = 16.sp,
                 color = Color.Gray
             )
@@ -230,8 +241,14 @@ fun PerfilScreen(navController: NavController) {
                     Text(text = "Información Personal", style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.height(16.dp))
                     Row {
-                        Text(text = "Fecha de Nacimiento: ", fontWeight = FontWeight.Bold)
-                        Text(text = "01/01/2000")
+                        Text(text = "Edad: ", fontWeight = FontWeight.Bold)
+                        // CORREGIDO: Ahora es Int, verificamos si es mayor que 0
+                        Text(text = if(userViewModel.currentUserEdad > 0) "${userViewModel.currentUserEdad}" else "N/A")
+                    }
+                     Spacer(modifier = Modifier.height(8.dp))
+                     Row {
+                        Text(text = "Monedas: ", fontWeight = FontWeight.Bold)
+                        Text(text = "${monedas ?: 0}")
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row {
@@ -250,4 +267,3 @@ fun PerfilScreen(navController: NavController) {
         }
     }
 }
-// Force re-index

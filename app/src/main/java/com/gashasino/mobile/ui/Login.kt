@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,13 +31,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.gashasino.mobile.model.UsuarioDto
 import com.gashasino.mobile.viewmodel.LoginViewModel
 
 
 @Composable
-fun Login(viewModel: LoginViewModel, navController: NavController) {
+fun Login(viewModel: LoginViewModel, navController: NavController, onLoginSuccess: (UsuarioDto) -> Unit) {
 
-    var abrirModal by remember { mutableStateOf(false) }
+    var mostrarDialogoError by remember { mutableStateOf(false) }
+    var mensajeErrorDialogo by remember { mutableStateOf("") }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
@@ -114,28 +118,35 @@ fun Login(viewModel: LoginViewModel, navController: NavController) {
                 )
                 Text("recordar usuario", color = Color.White)
 
-                Button(
-                    onClick = {
-                        if (viewModel.verificarLogin()) {
-                            abrirModal = true
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
-                ) {
-                    Text("Enviar", color = Color.Black)
+                if (viewModel.cargando) {
+                    CircularProgressIndicator(color = Color.Green)
+                } else {
+                    Button(
+                        onClick = {
+                            viewModel.iniciarSesion(
+                                onSuccess = { usuario ->
+                                    onLoginSuccess(usuario)
+                                    navController.navigate("juegoScreen")
+                                },
+                                onError = { mensaje ->
+                                    mensajeErrorDialogo = mensaje
+                                    mostrarDialogoError = true
+                                }
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                    ) {
+                        Text("Enviar", color = Color.Black)
+                    }
                 }
 
-                if (abrirModal) {
+                if (mostrarDialogoError) {
                     AlertDialog(
-                        onDismissRequest = { },
-                        title = { Text("Confirmación") },
-                        text = { Text("Formulario enviado correctamente") },
+                        onDismissRequest = { mostrarDialogoError = false },
+                        title = { Text("Error") },
+                        text = { Text(mensajeErrorDialogo) },
                         confirmButton = {
-                            Button(onClick = {
-                                abrirModal = false
-                                navController.navigate("juegoscreen")
-                            }
-                            ) { Text("OK") }
+                            Button(onClick = { mostrarDialogoError = false }) { Text("OK") }
                         }
                     )
                 }
@@ -144,4 +155,3 @@ fun Login(viewModel: LoginViewModel, navController: NavController) {
         }
     }
 }
-// Force re-index

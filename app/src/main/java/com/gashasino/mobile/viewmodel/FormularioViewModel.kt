@@ -4,15 +4,78 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.gashasino.mobile.repository.FormularioRepository
+import androidx.lifecycle.viewModelScope
+import com.gashasino.mobile.data.local.RetrofitInstance
 import com.gashasino.mobile.model.FormularioModel
 import com.gashasino.mobile.model.MensajesError
+import com.gashasino.mobile.repository.FormularioRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FormularioViewModel : ViewModel() {
     private val repository = FormularioRepository()
 
     var formulario: FormularioModel by mutableStateOf( repository.getFormulario() )
     var mensajesError: MensajesError by mutableStateOf( repository.getMensajesError() )
+
+    // Estados para la respuesta de la API
+    var registroExitoso by mutableStateOf(false)
+    var mensajeApi by mutableStateOf("")
+    var cargando by mutableStateOf(false)
+
+    fun registrarUsuario(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        if (!verificarFormulario()) return
+
+        cargando = true
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // PASO 1: Verificar si el usuario ya existe
+                val checkResponse = RetrofitInstance.api.findUserByEmail(formulario.correo)
+                
+                if (checkResponse.isSuccessful && !checkResponse.body().isNullOrEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        cargando = false
+                        registroExitoso = false
+                        mensajeApi = "El correo ya está registrado."
+                        onError(mensajeApi)
+                    }
+                    return@launch
+                }
+
+                // PASO 2: Si no existe, procedemos al registro
+                val edadInt = formulario.edad.toIntOrNull() ?: 18
+
+                val response = RetrofitInstance.api.register(
+                    nombre = formulario.nombre,
+                    correo = formulario.correo,
+                    contrasena = formulario.contrasena,
+                    edad = edadInt
+                )
+
+                withContext(Dispatchers.Main) {
+                    cargando = false
+                    if (response.isSuccessful && response.body() != null) {
+                        registroExitoso = true
+                        mensajeApi = "Registro exitoso"
+                        onSuccess()
+                    } else {
+                        registroExitoso = false
+                        val errorBody = response.errorBody()?.string() ?: "Error desconocido"
+                        mensajeApi = "Error API (${response.code()}): $errorBody"
+                        onError(mensajeApi)
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    cargando = false
+                    registroExitoso = false
+                    mensajeApi = "Error de conexión: ${e.message}"
+                    onError(mensajeApi)
+                }
+            }
+        }
+    }
 
     fun verificarFormulario(): Boolean {
         return verificarNombre() &&
@@ -30,7 +93,6 @@ class FormularioViewModel : ViewModel() {
             mensajesError.nombre = ""
             return true
         }
-        return repository.validacionNombre()
     }
 
     fun verificarCorreo(): Boolean {
@@ -41,7 +103,6 @@ class FormularioViewModel : ViewModel() {
             mensajesError.correo = ""
             return true
         }
-        return repository.validacionCorreo()
     }
 
     fun verificarEdad(): Boolean {
@@ -52,7 +113,6 @@ class FormularioViewModel : ViewModel() {
             mensajesError.edad = ""
             return true
         }
-        return repository.validacionEdad()
     }
 
     fun verificarTerminos(): Boolean {
@@ -63,7 +123,6 @@ class FormularioViewModel : ViewModel() {
             mensajesError.terminos = ""
             return true
         }
-        return repository.validacionTerminos()
     }
 
     fun verificarContrasena(): Boolean {
@@ -75,7 +134,4 @@ class FormularioViewModel : ViewModel() {
             return true
         }
     }
-
-
-
 }
