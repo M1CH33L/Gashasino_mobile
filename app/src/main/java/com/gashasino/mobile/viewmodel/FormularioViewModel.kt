@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gashasino.mobile.data.local.RegisterRequest
 import com.gashasino.mobile.data.local.RetrofitInstance
 import com.gashasino.mobile.model.FormularioModel
 import com.gashasino.mobile.model.MensajesError
@@ -32,8 +33,21 @@ class FormularioViewModel : ViewModel() {
             try {
                 // PASO 1: Verificar si el usuario ya existe
                 val checkResponse = RetrofitInstance.api.findUserByEmail(formulario.correo)
-                
-                if (checkResponse.isSuccessful && !checkResponse.body().isNullOrEmpty()) {
+                val usuariosEncontrados = checkResponse.body() ?: emptyList() // Si es null, usamos lista vacía
+
+                // LOG PARA DEPURAR
+                println("API CHECK: Body=$usuariosEncontrados")
+
+                // --- SOLUCIÓN APLICADA ---
+                // Buscamos manualmente si el correo que intentamos registrar (formulario.correo)
+                // coincide exactamente con el campo 'email' de algún usuario en la lista devuelta.
+                val usuarioYaExisteRealmente = usuariosEncontrados.any { usuario ->
+                    // Comparamos ignorando mayúsculas/minúsculas para ser más seguros
+                    usuario.correo.equals(formulario.correo, ignoreCase = true)
+                }
+
+                // Solo bloqueamos si ENCONTRAMOS el correo específico en la lista
+                if (checkResponse.isSuccessful && usuarioYaExisteRealmente) {
                     withContext(Dispatchers.Main) {
                         cargando = false
                         registroExitoso = false
@@ -43,15 +57,22 @@ class FormularioViewModel : ViewModel() {
                     return@launch
                 }
 
-                // PASO 2: Si no existe, procedemos al registro
+                // En FormularioViewModel.kt, dentro de registrarUsuario...
+
+// PASO 2: Si no existe, procedemos al registro
                 val edadInt = formulario.edad.toIntOrNull() ?: 18
 
-                val response = RetrofitInstance.api.register(
+// Creamos el objeto con los datos
+                val nuevoUsuario = RegisterRequest(
                     nombre = formulario.nombre,
                     correo = formulario.correo,
                     contrasena = formulario.contrasena,
                     edad = edadInt
                 )
+
+// Enviamos el objeto
+                val response = RetrofitInstance.api.register(nuevoUsuario)
+
 
                 withContext(Dispatchers.Main) {
                     cargando = false

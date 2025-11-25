@@ -264,6 +264,12 @@ fun PerfilScreen(navController: NavController, userViewModel: UserViewModel) {
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = { userViewModel.addMonedas(1000) }) {
+                Text("Comprar monedas")
+            }
         }
     }
 }

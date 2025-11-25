@@ -21,9 +21,8 @@ abstract class AppDatabase : RoomDatabase() {
                     "gashasino_database"
                 )
                     .fallbackToDestructiveMigration()
-                    // --- AÑADE ESTA LÍNEA ---
+
                     .allowMainThreadQueries() // Permite la creación de la DB en el hilo principal
-                    // -------------------------
                     .build()
                 INSTANCE = instance
                 instance
